@@ -6,21 +6,23 @@ from typing import Dict
 from github import Github
 
 REPO_NAME = os.getenv("REPO_NAME", "himkt/konoha")
+GITHUB_ACCESS_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN")
+
+
+assert GITHUB_ACCESS_TOKEN is not None, "`GITHUB_ACCESS_TOKEN` must be specified."
 
 
 if __name__ == "__main__":
     print("Please tell me when the oldest PR is opened: ", end="")
     days = int(input())
     timestamp_to_stop_fetch = datetime.datetime.now() - datetime.timedelta(
-        days=days + 2
-    )  # NOTE +2 is an offset
+        days=days + 2,  # +2 is offset
+    )
 
     print("Please put milestone name you want to make a release note: ", end="")
     milestone = input()
 
-    token = os.getenv("GITHUB_ACCESS_TOKEN")
-    assert token is not None, "`GITHUB_ACCESS_TOKEN` should not be None"
-    g = Github(token)
+    g = Github(GITHUB_ACCESS_TOKEN)
     repo = g.get_repo(REPO_NAME)
 
     label2prs: Dict[str, list] = {"No label": []}
