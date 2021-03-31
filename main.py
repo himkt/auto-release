@@ -3,16 +3,17 @@ import os
 import warnings
 from typing import Dict
 
+import click
 from github import Github
 
-REPO_NAME = os.getenv("REPO_NAME", "himkt/konoha")
+
 GITHUB_ACCESS_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN")
-
-
 assert GITHUB_ACCESS_TOKEN is not None, "`GITHUB_ACCESS_TOKEN` must be specified."
 
 
-if __name__ == "__main__":
+@click.command()
+@click.option("--repository", default="himkt/konoha")
+def main(repository: str):
     print("Please tell me when the oldest PR is opened: ", end="")
     days = int(input())
     timestamp_to_stop_fetch = datetime.datetime.now() - datetime.timedelta(
@@ -23,7 +24,7 @@ if __name__ == "__main__":
     milestone = input()
 
     g = Github(GITHUB_ACCESS_TOKEN)
-    repo = g.get_repo(REPO_NAME)
+    repo = g.get_repo(repository)
 
     label2prs: Dict[str, list] = {"No label": []}
 
@@ -59,3 +60,7 @@ if __name__ == "__main__":
         for entry in reversed(prs):
             print(f"- {entry}")
         print()
+
+
+if __name__ == "__main__":
+    main()
