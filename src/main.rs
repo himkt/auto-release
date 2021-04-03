@@ -12,6 +12,12 @@ struct Opt {
 
     #[structopt(short, long)]
     milestone: String,
+
+    #[structopt(short, long)]
+    organization: String,
+
+    #[structopt(short, long)]
+    repository: String,
 }
 
 
@@ -19,7 +25,7 @@ async fn create_pull_request_list() -> octocrab::Result<HashMap<String, Vec<Stri
     let opt: Opt = Opt::from_args();
     let octocrab = octocrab::instance();
     let page = octocrab
-        .pulls("himkt", "konoha")
+        .pulls(opt.organization, opt.repository)
         .list()
         .state(params::State::Closed)
         .direction(Direction::Descending)
