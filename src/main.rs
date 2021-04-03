@@ -1,8 +1,24 @@
+use std::collections::HashMap;
+
 use octocrab::{models, params::{self, Direction, pulls}};
+use structopt::StructOpt;
+
+
+#[derive(StructOpt, Debug)]
+#[structopt(name = "auto-release")]
+struct Opt {
+    #[structopt(short, long, default_value = "75")]
+    last_pull_request: u64,
+
+    #[structopt(short, long)]
+    milestone: String,
+}
 
 
 #[tokio::main]
 async fn main() -> octocrab::Result<()> {
+    let opt: Opt = Opt::from_args();
+
     let octocrab = octocrab::instance();
     let page = octocrab
         .pulls("himkt", "konoha")
@@ -14,6 +30,9 @@ async fn main() -> octocrab::Result<()> {
         .per_page(50 as u8)
         .send()
         .await?;
+
+    let mut items_map = HashMap::<String, Vec<String>>::new();
+    items_map.contains_key(&opt.milestone);
 
     let mut page = Some(page);
     while let Some(current_page) = page {
@@ -34,12 +53,14 @@ async fn main() -> octocrab::Result<()> {
             }
 
             match pull.milestone {
-                Some(milestone) => println!("{:?}", milestone.title),
+                Some(milestone) => {
+                    println!("{}", milestone.title);
+                },
                 _ => println!("!!no label found!!"),
             }
 
             // end of pull requests
-            if pull.number == 74 {
+            if pull.number == opt.last_pull_request {
                 return Ok(());
             }
         }
