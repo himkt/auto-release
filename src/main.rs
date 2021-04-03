@@ -52,7 +52,6 @@ async fn create_pull_request_list() -> octocrab::Result<HashMap<String, Vec<Stri
                 },
             }
 
-            println!("medium pr #{}, #{}", pull.number, opt.last_pull_request);
             match pull.labels {
                 Some(labels) => {
                     if labels.len() > 1 {
@@ -82,21 +81,29 @@ async fn create_pull_request_list() -> octocrab::Result<HashMap<String, Vec<Stri
         // next cursor
         page = octocrab.get_page::<models::pulls::PullRequest>(&current_page.next).await?;
     }
+
     Ok(items_map)
 }
 
 
 #[tokio::main]
-async fn main() -> octocrab::Result<()> {
-    let items_map = create_pull_request_list().await?;
+async fn main() {
+    let items_map = create_pull_request_list().await;
 
-    println!("\n\n\n");
-    for (k, v) in items_map.iter() {
-        println!("#{}", k);
-        for pull in v.iter() {
-            println!("- {}", pull);
+    match items_map {
+        Ok(items_map) => {
+            println!("\n\n\n");
+
+            for (k, v) in items_map.iter() {
+                println!("#{}", k);
+                for pull in v.iter() {
+                    println!("- {}", pull);
+                }
+                println!();
+            }
+        },
+        Err(e) => {
+            panic!(e);
         }
-        println!();
     }
-    Ok(())
 }
