@@ -11,22 +11,36 @@ async fn main() -> octocrab::Result<()> {
         .direction(Direction::Descending)
         .sort(pulls::Sort::Created)
         .page(1 as u8)
-        .per_page(5 as u8)
+        .per_page(50 as u8)
         .send()
         .await?;
 
     let mut page = Some(page);
     while let Some(current_page) = page {
-        for item in current_page.items {
-            for label in item.labels.unwrap() {
-                println!("{}", label.name);
-            }
-            println!("{}", item.number);
-            println!("{}", item.title);
+        for pull in current_page.items {
+            println!("{} (#{})", pull.title, pull.number);
 
-            match item.milestone {
-                Some(val) => println!("{:?}", val.title),
+            match pull.labels {
+                Some(labels) => {
+                    if labels.len() > 1 {
+                        println!("!!one more labels are assigned!!");
+                    }
+
+                    for label in labels {
+                        println!("{}", label.name);
+                    }
+                },
                 _ => println!("!!no label found!!"),
+            }
+
+            match pull.milestone {
+                Some(milestone) => println!("{:?}", milestone.title),
+                _ => println!("!!no label found!!"),
+            }
+
+            // end of pull requests
+            if pull.number == 74 {
+                return Ok(());
             }
         }
 
