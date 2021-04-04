@@ -91,6 +91,9 @@ async fn main() {
     let items_map = create_pull_request_list().await;
 
     match items_map {
+        Err(e) => {
+            panic!(e);
+        },
         Ok(items_map) => {
             println!("\n\n\n");
 
@@ -101,9 +104,6 @@ async fn main() {
                 }
                 println!();
             }
-        },
-        Err(e) => {
-            panic!(e);
         }
     }
 }
