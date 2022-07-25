@@ -1,28 +1,27 @@
 use std::collections::HashMap;
 
 use octocrab::{models, params::{self, Direction, pulls}};
-use structopt::StructOpt;
+use clap::Parser;
 
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = "auto-release")]
-struct Opt {
-    #[structopt(short, long, default_value = "75")]
+#[derive(Parser, Debug)]
+struct CommandArgs {
+    #[clap(short, long, default_value = "75")]
     last_pull_request: u64,
 
-    #[structopt(short, long)]
+    #[clap(short, long)]
     milestone: String,
 
-    #[structopt(short, long)]
+    #[clap(short, long)]
     organization: String,
 
-    #[structopt(short, long)]
+    #[clap(short, long)]
     repository: String,
 }
 
 
 async fn create_pull_request_list() -> octocrab::Result<HashMap<String, Vec<String>>, octocrab::Error> {
-    let opt: Opt = Opt::from_args();
+    let opt = CommandArgs::parse();
     let octocrab = octocrab::instance();
     let page = octocrab
         .pulls(opt.organization, opt.repository)
